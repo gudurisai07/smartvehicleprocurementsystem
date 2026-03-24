@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Smart Vehicle Procurement System - Seller Dashboard</title>
+ <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+ <style>
+ @keyframes slideIn {
+ from { transform: translateY(-50%); opacity: 0; }
+ to { transform: translateY(0); opacity: 1; }
+ }
+ @keyframes fadeIn {
+ from { opacity: 0; }
+ to { opacity: 1; }
+ }
+ @keyframes pulseGlow {
+ 0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+ 50% { box-shadow: 0 0 20px rgba(255, 255, 255, 1); }
+ 100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+ }
+ @keyframes spin {
+ from { transform: rotate(0deg); }
+ to { transform: rotate(360deg); }
+ }
+ .animate-slideIn { animation: slideIn 1.2s ease-out; }
+ .animate-fadeIn { animation: fadeIn 2.5s ease-in; }
+ .animate-pulseGlow { animation: pulseGlow 3s infinite; }
+ .animate-spin { animation: spin 12s linear infinite; }
+ .hero-bg { background: #0f172a; }
+ .card-hover:hover { transform: translateY(-10px); transition: transform 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+ .nav-button { transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; }
+ .nav-button:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+ #three-canvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100vh; opacity: 0.7; }
+ .section-bg { background: #1e293b; }
+ 
+ .glass-effect {
+ background: rgba(255, 255, 255, 0.1);
+ backdrop-filter: blur(10px);
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ }
+ 
+  .glass-btn {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+  }
+  .glass-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+</style>
+</head>
+<body class="font-sans relative text-white" style="background: linear-gradient(-45deg, #0a0a1a, #0f172a, #0d1b2a, #0a0a1a); background-size: 400% 400%; animation: gradientShift 20s ease infinite; min-height: 100vh;">
+ <!-- Three.js Canvas -->
+ <canvas id="three-canvas"></canvas>
+
+ <!-- Header with Navigation -->
+ <header class="hero-bg text-white py-8 relative z-10 overlay">
+ <nav class="container mx-auto px-4 flex justify-between items-center">
+ <h1 class="text-3xl md:text-4xl font-extrabold flex items-center">
+ <img src="https://img.icons8.com/fluency/48/ffffff/sports-car.png" alt="Car Icon" class="w-10 h-10 mr-3 animate-spin">
+ Smart Vehicle Procurement
+ </h1>
+ <div class="space-x-6">
+ <a href="userHome" class="nav-button glass-btn text-white py-2 px-6 rounded-full">Home</a>
+ <a href="addVehicle" class="nav-button glass-btn text-white py-2 px-6 rounded-full">Add Vehicle</a>
+ <a href="vehicleHistory" class="nav-button glass-btn text-white py-2 px-6 rounded-full">History</a>
+ <a href="log" class="nav-button glass-btn text-white py-2 px-6 rounded-full">Logout</a>
+ </div>
+ </nav>
+ 
+ </header>
+
+ <!-- Seller Benefits Section -->
+ <section id="add-vehicle" class="py-20 bg-black bg-opacity-70 relative z-10 overlay">
+ <div class="container mx-auto px-4">
+ <h2 class="text-3xl font-bold text-center mb-12 text-blue-400">Your Vehicles</h2>
+ {% if vehicles %}
+ <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+ {% for vehicle in vehicles %}
+ <div class="p-6 bg-gray-800 rounded-xl shadow-xl">
+ <div class="flex justify-between items-center mb-3">
+ <h3 class="text-xl font-semibold text-purple-300">{{ vehicle.vehicle_number }}</h3>
+ <span class="text-xs px-2 py-1 rounded-full {% if vehicle.status == 'sold' %}bg-red-700 text-red-200{% else %}bg-green-700 text-green-200{% endif %}">{{ vehicle.status|default:"Available" }}</span>
+ </div>
+ <div class="mb-4">
+ {% if vehicle.picture %}
+ <img src="{{ vehicle.picture.url }}" alt="{{ vehicle.vehicle_number }} Picture" class="w-full h-40 object-cover rounded-lg">
+ {% else %}
+ <p class="text-gray-400 text-sm">No picture available</p>
+ {% endif %}
+ </div>
+ <div class="mb-3">
+ <p class="text-gray-400 text-xs font-semibold uppercase tracking-wide">Accidents History</p>
+ <p class="text-gray-200 text-sm mt-1">{{ vehicle.accidents_history|default:"No accidents reported" }}</p>
+ </div>
+ <div class="mb-3">
+ <p class="text-gray-400 text-xs font-semibold uppercase tracking-wide">Ownership Documents</p>
+ {% if vehicle.ownership_documents %}
+ <a href="{{ vehicle.ownership_documents.url }}" class="text-cyan-400 hover:text-cyan-300 text-sm" target="_blank">📄 View Document</a>
+ {% else %}
+ <p class="text-gray-400 text-sm">No documents uploaded</p>
+ {% endif %}
+ </div>
+ <div class="mb-3 flex justify-between">
+ <div>
+  <p class="text-gray-400 text-xs font-semibold uppercase tracking-wide">Price</p>
+  <p class="text-green-400 text-lg font-bold">${{ vehicle.price }}</p>
+ </div>
+ {% if vehicle.location %}
+ <div>
+  <p class="text-gray-400 text-xs font-semibold uppercase tracking-wide">Location</p>
+  <p class="text-cyan-300 text-sm">📍 {{ vehicle.location }}</p>
+   {% if vehicle.map_link %}
+   <a href="{{ vehicle.map_link }}" target="_blank" class="mt-1 inline-flex items-center text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors">
+     🗺️ Map Pin →
+   </a>
+   {% endif %}
+ </div>
+ {% endif %}
+ </div>
+ <div class="mb-2">
+ <p class="text-gray-400 text-xs font-semibold uppercase tracking-wide">Block Hash</p>
+ <p class="text-gray-200 text-xs break-all mt-1">{{ vehicle.block_hash|default:"Not on blockchain yet" }}</p>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <p class="text-center text-gray-200 text-lg animate-fadeIn">No vehicles registered yet. Add a vehicle to get started!</p>
+ <div class="text-center mt-6">
+ <a href="addVehicle" class="inline-block bg-gray-900 text-white py-3 px-6 rounded-full hover:from-purple-600 hover:to-indigo-700 font-semibold transition-all animate-pulseGlow">Add Vehicle</a>
+ </div>
+ {% endif %}
+ </div>
+ </section>
+ <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+ <!-- Footer -->
+ <footer class="py-8 bg-gray-900 text-white relative z-10">
+ <div class="container mx-auto text-center">
+ <p class="text-gray-400">© 2025 Smart Vehicle Procurement System. All rights reserved.</p>
+ <div class="mt-4 space-x-6">
+ <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Privacy Policy</a>
+ <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Terms of Service</a>
+ </div>
+ </div>
+ </footer>
+ <script>
+ document.getElementById('picture').addEventListener('change', function(e) {
+ const file = e.target.files[0];
+ if (file) {
+ const reader = new FileReader();
+ reader.onload = function(e) {
+ const img = document.createElement('img');
+ img.src = e.target.result;
+ img.className = 'w-32 h-32 object-cover mx-auto mt-4 rounded-lg';
+ document.getElementById('picture').after(img);
+ };
+ reader.readAsDataURL(file);
+ }
+ });
+ </script>
+ <!-- Three.js Script for 3D Animation -->
+<script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = '90px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emoji, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.6 });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(3.5, 3.5, 1);
+      return sprite;
+    }
+
+    const emojis = ['🚗', '🚌', '🚲', '🏎️', '🚙', '🛵', '🚛'];
+    const shapes = [];
+
+    for (let i = 0; i < 50; i++) {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const mesh = createEmojiSprite(emoji);
+      mesh.position.set((Math.random()-0.5)*70, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+      scene.add(mesh);
+      shapes.push({ mesh, vx: (Math.random()-0.5)*0.04, vy: (Math.random()-0.5)*0.03, s: Math.random()*0.02 });
+    }
+    camera.position.z = 35;
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((item, index) => {
+        item.mesh.position.x += item.vx;
+        item.mesh.position.y += item.vy;
+        item.mesh.position.y += Math.sin(time + index) * 0.02; // floating effect
+        
+        if (item.mesh.position.x > 35) item.mesh.position.x = -35;
+        if (item.mesh.position.x < -35) item.mesh.position.x = 35;
+        if (item.mesh.position.y > 22) item.mesh.position.y = -22;
+        if (item.mesh.position.y < -22) item.mesh.position.y = 22;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>

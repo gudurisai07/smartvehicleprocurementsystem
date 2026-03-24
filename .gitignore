@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+
+# Node / React Native (Expo)
+node_modules/
+.expo/
+dist/
+npm-debug.log
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
+    body {
+      background: linear-gradient(-45deg, #0a0a0a, #0f0a1a, #0a0a12, #060a10);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+    }
+    .glass-nav { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(15px); }
+    .glass-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); transition: all 0.3s; }
+    .glass-btn:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+    .user-row {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease-out;
+    }
+    .user-row:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
+
+    .status-active { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; }
+    .status-inactive { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+    .status-pending { background: rgba(234,179,8,0.15); border: 1px solid rgba(234,179,8,0.4); color: #fde68a; }
+
+    .btn-activate { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #6ee7b7; transition: all 0.3s; }
+    .btn-activate:hover { background: rgba(16,185,129,0.4); transform: translateY(-1px); }
+    .btn-deactivate { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5; transition: all 0.3s; }
+    .btn-deactivate:hover { background: rgba(239,68,68,0.4); transform: translateY(-1px); }
+  </style>
+</head>
+<body class="text-white min-h-screen">
+
+  <!-- Navbar — NO buyer/seller detail links -->
+  <nav class="glass-nav sticky top-0 z-50 py-4 px-6 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl">🛡️</span>
+      <span class="text-xl font-bold">Admin Panel</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <a href="adminHome" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🏠 Dashboard</a>
+      <a href="adminTransactions" class="glass-btn text-yellow-300 py-2 px-4 rounded-full text-base font-medium">⛓️ Verify Transactions</a>
+      <a href="userdetails" class="glass-btn text-blue-300 py-2 px-4 rounded-full text-base font-medium">👥 Users</a>
+      <a href="log" class="glass-btn text-red-300 py-2 px-4 rounded-full text-base font-medium">🚪 Logout</a>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6 py-10">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-black text-white">👥 Registered Users</h1>
+        <p class="text-gray-400 mt-1 text-sm">Activate or deactivate user accounts · New users need activation before they can login</p>
+      </div>
+      <div class="text-right">
+        <span class="text-3xl font-black text-blue-400">{{ users|length }}</span>
+        <p class="text-gray-400 text-xs mt-1">total users</p>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="mb-6 p-4 rounded-xl {% if 'error' in message.tags %}bg-red-900 bg-opacity-30 border border-red-700 text-red-300{% else %}bg-green-900 bg-opacity-30 border border-green-700 text-green-300{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Users Grid -->
+    {% if users %}
+    <div class="space-y-3">
+      {% for user in users %}
+      <div class="user-row rounded-2xl px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <!-- User Info -->
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0"
+               style="background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4);">
+            {{ user.name|first|upper }}
+          </div>
+          <div>
+            <p class="text-white font-semibold text-base">{{ user.name }}</p>
+            <p class="text-gray-400 text-sm">{{ user.email }}</p>
+          </div>
+        </div>
+
+        <!-- Details Row -->
+        <div class="flex flex-wrap gap-4 text-sm">
+          <div>
+            <p class="text-indigo-400 text-xs font-semibold mb-1">Login ID</p>
+            <p class="text-gray-200">{{ user.loginid }}</p>
+          </div>
+          <div>
+            <p class="text-cyan-400 text-xs font-semibold mb-1">Mobile</p>
+            <p class="text-gray-200">{{ user.mobile }}</p>
+          </div>
+          <div>
+            <p class="text-purple-400 text-xs font-semibold mb-1">Location</p>
+            <p class="text-gray-200 max-w-xs truncate">{{ user.location|default:"—" }}</p>
+          </div>
+        </div>
+
+        <!-- Status + Action -->
+        <div class="flex items-center space-x-3 flex-shrink-0">
+          <span class="text-xs px-3 py-1 rounded-full font-semibold
+            {% if user.status == 'Active' %}status-active
+            {% elif user.status == 'Inactive' %}status-inactive
+            {% else %}status-pending{% endif %}">
+            {% if user.status == 'Active' %}✅ Active
+            {% elif user.status == 'Inactive' %}❌ Inactive
+            {% else %}⏳ {{ user.status }}{% endif %}
+          </span>
+          {% if user.status == 'Active' %}
+          <a href="deactivate_user?id={{ user.id }}"
+             class="btn-deactivate px-4 py-2 rounded-full text-xs font-semibold"
+             onclick="return confirm('Deactivate {{ user.name }}?');">
+            Deactivate
+          </a>
+          {% else %}
+          <a href="activate_user?id={{ user.id }}"
+             class="btn-activate px-4 py-2 rounded-full text-xs font-semibold">
+            Activate
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-20" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 1.5rem;">
+      <div class="text-6xl mb-4">👥</div>
+      <h3 class="text-xl font-bold text-gray-300 mb-2">No Users Registered Yet</h3>
+      <p class="text-gray-500 text-sm">Users will appear here once they register on the platform.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <footer class="py-6 text-center border-t border-gray-800 mt-12">
+    <p class="text-gray-500 text-sm">© 2025 Smart Vehicle Procurement System</p>
+  </footer>
+</body>
+</html>

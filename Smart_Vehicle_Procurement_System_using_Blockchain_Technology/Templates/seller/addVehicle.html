@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Vehicle - Smart Vehicle Procurement</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+    @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-slideIn { animation: slideIn 0.6s ease-out; }
+    .animate-fadeIn { animation: fadeIn 0.8s ease-in; }
+    .animate-spin { animation: spin 12s linear infinite; }
+    .glass-btn {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.3s ease;
+    }
+    .glass-btn:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    #three-canvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100vh; opacity: 0.6; }
+    input, select, textarea {
+      background: rgba(31, 41, 55, 1) !important;
+      color: #e5e7eb !important;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      ring-color: #6366f1;
+      border-color: #6366f1;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen font-sans text-white relative">
+  <!-- Three.js Canvas -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Header -->
+  <header class="bg-gray-900 bg-opacity-80 text-white py-4 relative z-10 sticky top-0 backdrop-blur-md border-b border-gray-800">
+    <nav class="container mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold flex items-center">
+        <img src="https://img.icons8.com/fluency/48/ffffff/sports-car.png" alt="Car Icon" class="w-8 h-8 mr-2 animate-spin">
+        Smart Vehicle Procurement
+      </h1>
+      <div class="space-x-3">
+        <a href="userHome" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🏠 Home</a>
+        <a href="addVehicle" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">➕ Add Vehicle</a>
+        <a href="browseVehicles" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🚗 Browse</a>
+        <a href="vehicleHistory" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">📋 My Posts</a>
+        <a href="log" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🚪 Logout</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Add Vehicle Form Section -->
+  <section class="py-12 relative z-10">
+    <div class="container mx-auto px-4">
+      <!-- Messages -->
+      {% if messages %}
+      <div class="max-w-lg mx-auto mb-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-lg mb-2 {% if 'error' in message.tags %}bg-red-800 text-red-200{% else %}bg-green-800 text-green-200{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="max-w-3xl mx-auto p-8 bg-gray-800 bg-opacity-90 rounded-2xl shadow-2xl animate-slideIn">
+        <h2 class="text-3xl font-bold text-center mb-8 text-blue-400">Add New Vehicle</h2>
+
+        <form method="post" action="addVehicle" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Vehicle Number + RTO Verify -->
+          <div class="mb-5">
+            <label class="block text-indigo-400 text-lg font-semibold mb-2">Vehicle Number</label>
+            <div class="flex items-center space-x-2">
+              <input type="text" id="vehicle_number" name="vehicle_number"
+                placeholder="AP34DH5001"
+                pattern="^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$"
+                title="Format: AP34DH5001"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                oninput="this.value = this.value.toUpperCase()"
+                required>
+              <button type="button" onclick="verifyVehicle()"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg flex-shrink-0 transition whitespace-nowrap">
+                🔍 Verify RTO
+              </button>
+            </div>
+            <p id="rto-status" class="text-sm text-gray-400 mt-1">Format: AP34DH5001 · Must verify before submitting</p>
+          </div>
+
+          <!-- RTO Auto-filled Details (hidden until verified) -->
+          <div id="rto-details-section" class="mb-6 hidden bg-gray-700 rounded-xl p-5 border border-indigo-500 border-opacity-30">
+            <p class="text-green-400 text-sm font-semibold mb-3 tracking-wide">✅ RTO Verified Details (Auto-filled)</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-cyan-400 text-base font-semibold mb-1">Owner Name (RTO)</label>
+                <input type="text" id="rto_owner" name="rto_owner" readonly
+                  class="w-full px-3 py-2 rounded-lg bg-gray-600 text-gray-200 text-lg cursor-not-allowed">
+              </div>
+              <div>
+                <label class="block text-purple-400 text-base font-semibold mb-1">Model (RTO)</label>
+                <input type="text" id="rto_model" name="rto_model" readonly
+                  class="w-full px-3 py-2 rounded-lg bg-gray-600 text-gray-200 text-lg cursor-not-allowed">
+              </div>
+              <div>
+                <label class="block text-yellow-400 text-base font-semibold mb-1">Fuel Type (RTO)</label>
+                <input type="text" id="rto_fuel" name="rto_fuel" readonly
+                  class="w-full px-3 py-2 rounded-lg bg-gray-600 text-gray-200 text-lg cursor-not-allowed">
+              </div>
+              <div>
+                <label class="block text-green-400 text-base font-semibold mb-1">Registration Date (RTO)</label>
+                <input type="text" id="rto_reg_date" name="rto_reg_date" readonly
+                  class="w-full px-3 py-2 rounded-lg bg-gray-600 text-gray-200 text-lg cursor-not-allowed"
+                  placeholder="DD-MM-YYYY">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+            <!-- Vehicle Picture -->
+            <div>
+              <label class="block text-yellow-400 text-lg font-semibold mb-2">Vehicle Picture</label>
+              <input type="file" id="picture" name="picture" accept="image/*"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none">
+            </div>
+
+            <!-- Ownership Documents -->
+            <div>
+              <label class="block text-blue-400 text-lg font-semibold mb-2">Ownership Documents</label>
+              <input type="file" id="ownership_documents" name="ownership_documents"
+                accept=".pdf,.doc,.docx,.jpg,.png"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Accidents History -->
+          <div class="mb-6">
+            <label class="block text-pink-400 text-lg font-semibold mb-2">Accidents History</label>
+            <textarea id="accidents_history" name="accidents_history" rows="3"
+              placeholder="Describe any accidents or damage"
+              class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Price -->
+            <div>
+              <label class="block text-teal-400 text-lg font-semibold mb-2">Price ($)</label>
+              <input type="number" id="price" name="price" min="0" placeholder="Enter Price"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required>
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label class="block text-green-400 text-lg font-semibold mb-2">📞 Phone No:</label>
+              <input type="tel" id="phone_number" name="phone_number" placeholder="Enter Seller Phone Number"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required>
+            </div>
+          </div>
+
+          <!-- Location with Live GPS -->
+          <div class="mb-8">
+            <label class="block text-orange-400 text-lg font-semibold mb-2">📍 Location</label>
+            <div class="flex items-center space-x-2">
+              <input type="text" id="location" name="location"
+                placeholder="Enter Vehicle Location or Fetch Live Location"
+                class="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <button type="button" onclick="getLiveLocation()"
+                class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg flex-shrink-0 transition whitespace-nowrap">
+                📍 Live
+              </button>
+            </div>
+            <p id="location-status" class="text-xs text-yellow-400 mt-1 hidden"></p>
+          </div>
+
+          <!-- Submit Button (disabled until RTO verified) -->
+          <button type="submit" id="submit-btn" disabled
+            class="w-full py-4 text-xl bg-indigo-600 text-white rounded-full font-bold transition-all opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105 transform duration-300">
+            🔒 Verify RTO First to Submit
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-6 bg-gray-900 text-white relative z-10">
+    <div class="container mx-auto text-center">
+      <p class="text-gray-400">© 2025 Smart Vehicle Procurement System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // RTO Verification Logic
+    async function verifyVehicle() {
+      const vehicle_no = document.getElementById('vehicle_number').value;
+      const rtoStatus = document.getElementById('rto-status');
+      const submitBtn = document.getElementById('submit-btn');
+      const rtoSection = document.getElementById('rto-details-section');
+
+      if (!vehicle_no) {
+        rtoStatus.textContent = "Please enter a vehicle number.";
+        rtoStatus.className = "text-xs mt-1 text-red-400";
+        return;
+      }
+
+      rtoStatus.textContent = "🔄 Verifying with RTO Database...";
+      rtoStatus.className = "text-xs mt-1 text-yellow-400";
+
+      try {
+        const response = await fetch(`/verify_rto_vehicle?vehicle_number=${encodeURIComponent(vehicle_no)}`);
+        const data = await response.json();
+
+        if (data.success) {
+          rtoStatus.textContent = "✅ Verified! Vehicle matches RTO records. Source: " + (data.source || 'RTO DB');
+          rtoStatus.className = "text-xs mt-1 text-green-400";
+
+          document.getElementById('rto_owner').value = data.owner_name;
+          document.getElementById('rto_model').value = data.model;
+          document.getElementById('rto_fuel').value = data.fuel;
+          document.getElementById('rto_reg_date').value = data.registration_date || 'Not Available';
+
+          rtoSection.classList.remove('hidden');
+
+          submitBtn.disabled = false;
+          submitBtn.textContent = "🚀 Submit Vehicle to Blockchain";
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          submitBtn.classList.add('hover:bg-indigo-500');
+        } else {
+          rtoStatus.textContent = "❌ FAILED: " + data.message;
+          rtoStatus.className = "text-xs mt-1 text-red-500 font-semibold";
+          rtoSection.classList.add('hidden');
+          submitBtn.disabled = true;
+          submitBtn.textContent = "🔒 Verify RTO First to Submit";
+          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      } catch (error) {
+        rtoStatus.textContent = "⚠️ Error contacting RTO server.";
+        rtoStatus.className = "text-xs mt-1 text-red-400";
+      }
+    }
+
+    // Live Location
+    async function getLiveLocation() {
+      const locStatus = document.getElementById('location-status');
+      const locInput = document.getElementById('location');
+      if (navigator.geolocation) {
+        locStatus.textContent = "📡 Fetching GPS coordinates...";
+        locStatus.classList.remove('hidden');
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            if (data && data.display_name) {
+              locInput.value = data.display_name;
+              locStatus.textContent = "✅ Location pinned!";
+              locStatus.className = "text-xs mt-1 text-green-400";
+            } else {
+              locInput.value = `${lat}, ${lon}`;
+              locStatus.textContent = "📌 Coordinates captured.";
+            }
+          } catch {
+            locInput.value = `${lat}, ${lon}`;
+            locStatus.textContent = "📌 Using raw coordinates.";
+          }
+        }, () => {
+          locStatus.textContent = "❌ Location access denied.";
+          locStatus.className = "text-xs mt-1 text-red-400";
+        });
+      }
+    }
+
+    // Preview image on upload
+    document.getElementById('picture').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          let img = document.getElementById('vehicle-preview');
+          if (!img) {
+            img = document.createElement('img');
+            img.id = 'vehicle-preview';
+            img.className = 'w-full h-40 object-cover mx-auto mt-3 rounded-lg';
+            document.getElementById('picture').after(img);
+          }
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Three.js Animation - Emojis floating in 3D
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = '90px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emoji, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.6 });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(3.5, 3.5, 1);
+      return sprite;
+    }
+
+    const emojis = ['🚗', '🚌', '🚲', '🏎️', '🚙', '🛵', '🚛'];
+    const shapes = [];
+
+    for (let i = 0; i < 50; i++) {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const mesh = createEmojiSprite(emoji);
+      mesh.position.set((Math.random()-0.5)*70, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+      scene.add(mesh);
+      shapes.push({ mesh, vx: (Math.random()-0.5)*0.04, vy: (Math.random()-0.5)*0.03, index: i });
+    }
+    camera.position.z = 35;
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((item) => {
+        item.mesh.position.x += item.vx;
+        item.mesh.position.y += item.vy;
+        item.mesh.position.y += Math.sin(time + item.index) * 0.02; // floating effect
+        
+        if (item.mesh.position.x > 35) item.mesh.position.x = -35;
+        if (item.mesh.position.x < -35) item.mesh.position.x = 35;
+        if (item.mesh.position.y > 22) item.mesh.position.y = -22;
+        if (item.mesh.position.y < -22) item.mesh.position.y = 22;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

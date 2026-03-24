@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Verification - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+    body {
+      background: linear-gradient(-45deg, #0a0a0a, #0f0a1a, #0a0a12, #060a10);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+    }
+
+    .glass-nav { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(15px); }
+    .glass-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); transition: all 0.3s; }
+    .glass-btn:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+    /* Hash Verify Box */
+    .verify-box {
+      background: rgba(234, 179, 8, 0.05);
+      border: 1px solid rgba(234, 179, 8, 0.25);
+      backdrop-filter: blur(15px);
+      animation: fadeIn 0.5s ease-out;
+    }
+    .hash-input {
+      background: rgba(0,0,0,0.4) !important;
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      color: #fde68a !important;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+      transition: all 0.3s;
+    }
+    .hash-input:focus {
+      border-color: rgba(234, 179, 8, 0.7) !important;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.1);
+    }
+    .hash-input::placeholder { color: rgba(234,179,8,0.3); }
+
+    .btn-verify {
+      background: linear-gradient(135deg, #d97706, #92400e);
+      transition: all 0.3s;
+    }
+    .btn-verify:hover {
+      background: linear-gradient(135deg, #f59e0b, #b45309);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(217, 119, 6, 0.4);
+    }
+
+    /* Transaction table */
+    .tx-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease-out;
+      transition: all 0.3s;
+    }
+    .tx-card:hover { border-color: rgba(255,255,255,0.15); }
+
+    .status-pending { background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #fde68a; }
+    .status-approved { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+
+    .hash-display {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      word-break: break-all;
+      max-width: 200px;
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #059669, #047857);
+      transition: all 0.3s;
+    }
+    .btn-approve:hover {
+      background: linear-gradient(135deg, #10b981, #059669);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(5, 150, 105, 0.4);
+    }
+
+    .pending-dot { animation: pulse 2s ease-in-out infinite; }
+  </style>
+</head>
+<body class="text-white min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="glass-nav sticky top-0 z-50 py-4 px-6 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl">🛡️</span>
+      <span class="text-xl font-bold">Admin Panel</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <a href="adminHome" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🏠 Dashboard</a>
+      <a href="adminTransactions" class="glass-btn text-yellow-300 py-2 px-4 rounded-full text-base font-medium">⛓️ Verify Transactions</a>
+      <a href="userdetails" class="glass-btn text-blue-300 py-2 px-4 rounded-full text-base font-medium">👥 Users</a>
+      <a href="log" class="glass-btn text-red-300 py-2 px-4 rounded-full text-base font-medium">🚪 Logout</a>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6 py-10">
+
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-white">⛓️ Blockchain Transaction Verification</h1>
+      <p class="text-gray-400 mt-1 text-sm">Paste a blockchain hash code to verify and confirm vehicle purchase</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="mb-6 p-4 rounded-xl {% if 'error' in message.tags %}bg-red-900 bg-opacity-30 border border-red-700 text-red-300{% else %}bg-green-900 bg-opacity-30 border border-green-700 text-green-300{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Hash Verify Input Box -->
+    <div class="verify-box rounded-2xl p-8 mb-10">
+      <h2 class="text-xl font-bold text-yellow-300 mb-2">🔍 Verify Hash Code</h2>
+      <p class="text-gray-400 text-sm mb-6">
+        When a buyer purchases a vehicle, a unique blockchain hash code is generated.<br>
+        Paste that hash below and click <strong class="text-yellow-300">Verify & Approve</strong> to confirm the transaction and transfer ownership.
+      </p>
+      <form method="GET" action="adminApproveTransaction" class="flex flex-col sm:flex-row gap-4">
+        <input
+          type="text"
+          name="hash_code"
+          placeholder="Paste blockchain hash code here... e.g. 0x4a3b2c1d..."
+          class="hash-input flex-1 px-4 py-4 rounded-xl text-sm"
+          required
+        >
+        <button type="submit" class="btn-verify px-8 py-4 rounded-xl text-white font-bold whitespace-nowrap">
+          ✅ Verify & Approve
+        </button>
+      </form>
+      <p class="text-yellow-600 text-xs mt-3">⚠️ Only paste valid hash codes received from buyers. Once approved, the transaction is permanent on the blockchain.</p>
+    </div>
+
+    <!-- Pending Transactions -->
+    <div class="mb-6 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-white">📋 All Transactions</h2>
+      <div class="flex items-center space-x-2">
+        <span class="pending-dot w-2 h-2 bg-yellow-400 rounded-full inline-block"></span>
+        <span class="text-yellow-400 text-xs">
+          {{ transactions|length }} transaction(s)
+        </span>
+      </div>
+    </div>
+
+    <!-- Transaction Cards -->
+    {% if transactions %}
+    <div class="space-y-4">
+      {% for t in transactions %}
+      <div class="tx-card rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <!-- Left: Vehicle + Buyer Info -->
+        <div class="flex-1">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="{% if t.status == 'pending' %}status-pending{% else %}status-approved{% endif %} text-xs px-3 py-1 rounded-full font-semibold">
+              {% if t.status == 'pending' %}⏳ Pending{% else %}✅ Approved{% endif %}
+            </span>
+            <span class="text-gray-400 text-xs">{{ t.created_at|date:"d M Y, H:i" }}</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p class="text-cyan-400 text-xs font-semibold mb-1">Vehicle No.</p>
+              <p class="text-white text-sm font-bold">{{ t.vehicle_number }}</p>
+            </div>
+            <div>
+              <p class="text-purple-400 text-xs font-semibold mb-1">Buyer</p>
+              <p class="text-white text-sm">{{ t.buyer_name }}</p>
+            </div>
+            <div>
+              <p class="text-green-400 text-xs font-semibold mb-1">Price</p>
+              <p class="text-white text-sm font-bold">₹{{ t.price }}</p>
+            </div>
+            <div>
+              <p class="text-yellow-400 text-xs font-semibold mb-1">Blockchain Hash</p>
+              <p class="hash-display">{{ t.hash_code }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Action -->
+        <div class="flex-shrink-0">
+          {% if t.status == 'pending' %}
+          <a href="adminApproveTransaction?hash_code={{ t.hash_code }}"
+             class="btn-approve px-6 py-3 rounded-xl text-white font-semibold text-sm inline-block text-center"
+             onclick="return confirm('Approve transaction for {{ t.vehicle_number }}? This will transfer ownership permanently.');">
+            ✅ Approve
+          </a>
+          {% else %}
+          <div class="text-center">
+            <span class="text-green-400 text-sm font-semibold">✅ Completed</span>
+            <p class="text-gray-500 text-xs mt-1">Ownership Transferred</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="tx-card rounded-2xl p-16 text-center">
+      <div class="text-6xl mb-4">⛓️</div>
+      <h3 class="text-xl font-bold text-gray-300 mb-2">No Transactions Yet</h3>
+      <p class="text-gray-500 text-sm">Vehicle purchase transactions will appear here once buyers complete a purchase.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <footer class="py-6 text-center border-t border-gray-800 mt-12">
+    <p class="text-gray-500 text-sm">© 2025 Smart Vehicle Procurement System · Blockchain Verified</p>
+  </footer>
+
+</body>
+</html>

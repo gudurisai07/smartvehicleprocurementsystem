@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Smart Vehicle Procurement System - Buyer Registration</title>
+ <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+ <style>
+ @keyframes slideIn {
+ from { transform: translateY(-50%); opacity: 0; }
+ to { transform: translateY(0); opacity: 1; }
+ }
+ @keyframes fadeIn {
+ from { opacity: 0; }
+ to { opacity: 1; }
+ }
+ @keyframes pulseGlow {
+ 0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+ 50% { box-shadow: 0 0 20px rgba(255, 255, 255, 1); }
+ 100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+ }
+ @keyframes spin {
+ from { transform: rotate(0deg); }
+ to { transform: rotate(360deg); }
+ }
+ .animate-slideIn { animation: slideIn 1.2s ease-out; }
+ .animate-fadeIn { animation: fadeIn 2.5s ease-in; }
+ .animate-pulseGlow { animation: pulseGlow 3s infinite; }
+ .animate-spin { animation: spin 12s linear infinite; }
+ .hero-bg { background: #0f172a; }
+ .card-hover:hover { transform: translateY(-10px); transition: transform 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+ .nav-button { transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; }
+ .nav-button:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+ #three-canvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100vh; opacity: 0.7; }
+ .section-bg { background: #1e293b; }
+ 
+ .glass-effect {
+ background: rgba(255, 255, 255, 0.1);
+ backdrop-filter: blur(10px);
+ border: 1px solid rgba(255, 255, 255, 0.2);
+ }
+ 
+  .glass-btn {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+  }
+  .glass-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+</style>
+</head>
+<body class="font-sans relative text-white" style="background: linear-gradient(-45deg, #0a0a1a, #0f172a, #0d1b2a, #0a0a1a); background-size: 400% 400%; animation: gradientShift 20s ease infinite; min-height: 100vh;">
+ <!-- Three.js Canvas -->
+ <canvas id="three-canvas"></canvas>
+
+ <!-- Header with Navigation -->
+ <header class="hero-bg text-white py-8 relative z-10 overlay">
+ <nav class="container mx-auto px-4 flex justify-between items-center">
+ <h1 class="text-3xl md:text-4xl font-extrabold flex items-center">
+ <img src="https://img.icons8.com/fluency/48/ffffff/sports-car.png" alt="Car Icon" class="w-10 h-10 mr-3 animate-spin">
+ Smart Vehicle Procurement
+ </h1>
+ <div class="space-x-6">
+  <a href="/" class="nav-button bg-gray-900 text-white py-2 px-6 rounded-full hover:bg-gray-700 transition">Home</a>
+  <a href="userLoginForm" class="nav-button bg-indigo-600 text-white py-2 px-6 rounded-full hover:bg-indigo-500 transition">Login</a>
+  <a href="userRegisterForm" class="nav-button bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-500 transition">Register</a>
+ </div>
+ 
+ 
+ </nav>
+ </header>
+
+ <!-- Buyer Registration Section -->
+ <section id="buyer-register" class="py-20 bg-black bg-opacity-70 relative z-10 overlay">
+ <div class="container mx-auto px-4">
+ <ul class="messages">
+ {% if messages %}
+ <ul class="messages" style="list-style: none; padding: 0;">
+ {% for message in messages %}
+ <li style="margin: 10px 0; padding: 12px; border-radius: 5px; 
+ color: white; 
+ background-color:black">
+ {{ message }}
+ </li>
+ {% endfor %}
+ </ul>
+ {% endif %}
+ </ul>
+ <div class="max-w-2xl mx-auto p-8 glass-effect rounded-xl shadow-xl animate-fadeIn">
+ <h2 class="text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gray-900">Seller Registration</h2>
+ <form method="post" action="sellerRegisterCheck">
+ {% csrf_token %}
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+   <div>
+     <label for="name" class="block text-indigo-400 text-lg font-semibold mb-2">Full Name</label>
+     <input type="text" id="name" name="name" maxlength="50" placeholder="Enter Full Name" class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+   </div>
+   <div>
+     <label for="email" class="block text-cyan-400 text-lg font-semibold mb-2">Email</label>
+     <input type="email" id="email" name="email" placeholder="Enter Email" class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+   </div>
+   <div>
+     <label for="loginid" class="block text-purple-400 text-lg font-semibold mb-2">Login ID</label>
+     <input type="text" id="loginid" name="loginid" maxlength="30" placeholder="Enter Login ID" class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+   </div>
+   <div>
+     <label for="mobile" class="block text-green-400 text-lg font-semibold mb-2">Mobile Number</label>
+     <input type="text" id="mobile" name="mobile" maxlength="10" placeholder="Enter Mobile Number" class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+   </div>
+   <div class="md:col-span-2">
+     <label for="password" class="block text-yellow-400 text-lg font-semibold mb-2">Password</label>
+     <input type="password" id="password" name="password" maxlength="128" placeholder="Enter Password" class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+   </div>
+ </div>
+ <!-- Location with Live GPS -->
+ <div class="mb-8">
+   <label class="block text-pink-400 text-lg font-semibold mb-2">📍 Location</label>
+   <div class="flex items-center space-x-2">
+     <input type="text" id="location" name="location" placeholder="Enter city or fetch live location"
+       class="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500" required>
+     <button type="button" onclick="getLiveLocation()"
+       class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg flex-shrink-0 transition">
+       📍 Live
+     </button>
+   </div>
+   <p id="location-status" class="text-xs text-yellow-400 mt-1 hidden"></p>
+ </div>
+ <button type="submit" class="w-full py-4 text-xl bg-gray-900 text-white rounded-full hover:from-green-500 hover:to-teal-600 font-bold transition-all animate-pulseGlow shadow-lg">Register</button>
+ </form>
+ 
+ <script>
+   async function getLiveLocation() {
+     const locStatus = document.getElementById('location-status');
+     const locInput = document.getElementById('location');
+     if (navigator.geolocation) {
+       locStatus.textContent = "📡 Fetching location...";
+       locStatus.classList.remove('hidden');
+       navigator.geolocation.getCurrentPosition(async (position) => {
+         const lat = position.coords.latitude;
+         const lon = position.coords.longitude;
+         try {
+           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+           const data = await res.json();
+           if (data && data.display_name) {
+             locInput.value = data.display_name;
+             locStatus.textContent = "✅ Location fetched!";
+             locStatus.className = "text-xs mt-1 text-green-400";
+           } else {
+             locInput.value = `${lat}, ${lon}`;
+           }
+         } catch {
+           locInput.value = `${lat}, ${lon}`;
+         }
+       }, () => {
+         locStatus.textContent = "❌ Access denied. Type manually.";
+         locStatus.className = "text-xs mt-1 text-red-400";
+       });
+     }
+   }
+ </script>
+ <p class="text-center text-gray-300 mt-6">Already have an account? <a href="sellerLoginForm" class="text-green-400 hover:text-green-300 transition">Login here</a></p>
+ </div>
+ </div>
+ </section>
+
+ <!-- Features Section -->
+ <section id="features" class="py-20 relative z-10 section-bg overlay">
+ <div class="container mx-auto px-4">
+ <h2 class="text-4xl font-bold text-center mb-16 animate-fadeIn bg-clip-text text-transparent bg-gray-900">Why Our System Stands Out</h2>
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+ <div class="p-8 glass-effect rounded-xl shadow-xl card-hover animate-slideIn">
+ <img src="https://img.icons8.com/fluency/48/ffffff/blockchain-technology.png" alt="Blockchain Icon" class="w-14 h-14 mx-auto mb-6 animate-spin">
+ <h3 class="text-2xl font-semibold mb-4 text-cyan-300">Transparent Transactions</h3>
+ <p class="text-gray-200">Leverage blockchain for secure, traceable, and tamper-proof transactions, ensuring trust in every deal.</p>
+ </div>
+ <div class="p-8 glass-effect rounded-xl shadow-xl card-hover animate-slideIn" style="animation-delay: 0.2s;">
+ <img src="https://img.icons8.com/fluency/48/ffffff/contract.png" alt="Contract Icon" class="w-14 h-14 mx-auto mb-6 animate-spin">
+ <h3 class="text-2xl font-semibold mb-4 text-green-300">Smart Contracts</h3>
+ <p class="text-gray-200">Streamline procurement with automated, error-free smart contracts, minimizing paperwork and delays.</p>
+ </div>
+ <div class="p-8 glass-effect rounded-xl shadow-xl card-hover animate-slideIn" style="animation-delay: 0.4s;">
+ <img src="https://img.icons8.com/fluency/48/ffffff/shield.png" alt="Shield Icon" class="w-14 h-14 mx-auto mb-6 animate-spin">
+ <h3 class="text-2xl font-semibold mb-4 text-purple-300">Decentralized Security</h3>
+ <p class="text-gray-200">Safeguard sensitive data with decentralized storage, reducing risks of hacks and fraud.</p>
+ </div>
+ </div>
+ </div>
+ </section>
+
+ <!-- How It Works Section -->
+ <section class="py-20 bg-gray-900 text-white relative z-10">
+ <div class="container mx-auto px-4">
+ <h2 class="text-4xl font-bold text-center mb-16 animate-fadeIn bg-clip-text text-transparent bg-gray-900">How It Works</h2>
+ <div class="flex flex-col md:flex-row justify-center items-center space-y-12 md:space-y-0 md:space-x-16">
+ <div class="text-center animate-slideIn">
+ <img src="https://img.icons8.com/fluency/48/ffffff/car.png" alt="Car Icon" class="w-16 h-16 mx-auto mb-6 animate-pulseGlow">
+ <h3 class="text-2xl font-semibold text-yellow-400">Register Vehicle</h3>
+ <p class="text-gray-300">Securely log vehicle details on the blockchain for immutable records.</p>
+ </div>
+ <div class="text-center animate-slideIn" style="animation-delay: 0.2s;">
+ <img src="https://img.icons8.com/fluency/48/ffffff/document.png" alt="Document Icon" class="w-16 h-16 mx-auto mb-6 animate-pulseGlow">
+ <h3 class="text-2xl font-semibold text-cyan-400">Execute Smart Contract</h3>
+ <p class="text-gray-300">Automate agreements with predefined terms for seamless transactions.</p>
+ </div>
+ <div class="text-center animate-slideIn" style="animation-delay: 0.4s;">
+ <img src="https://img.icons8.com/fluency/48/ffffff/check.png" alt="Check Icon" class="w-16 h-16 mx-auto mb-6 animate-pulseGlow">
+ <h3 class="text-2xl font-semibold text-green-400">Track & Verify</h3>
+ <p class="text-gray-300">Monitor and verify transactions in real-time with complete transparency.</p>
+ </div>
+ </div>
+ </div>
+ </section>
+
+ <!-- Call to Action -->
+ <section class="py-20 bg-gray-900 text-white relative z-10 section-bg overlay">
+ <div class="container mx-auto text-center">
+ <h2 class="text-4xl font-bold mb-6 animate-fadeIn bg-clip-text text-transparent bg-gray-900">Drive the Future of Procurement</h2>
+ <p class="text-xl mb-8 animate-fadeIn text-gray-200">Embrace blockchain technology for smarter, safer vehicle transactions.</p>
+ <a href="#contact" class="inline-block bg-gray-900 text-white py-4 px-8 rounded-full hover:from-pink-600 hover:to-purple-700 transition animate-pulseGlow text-lg font-semibold">Get Started Now</a>
+ </div>
+ </section>
+
+ <!-- Footer -->
+ <footer class="py-8 bg-gray-900 text-white relative z-10">
+ <div class="container mx-auto text-center">
+ <p class="text-gray-400">© 2025 Smart Vehicle Procurement System. All rights reserved.</p>
+ <div class="mt-4 space-x-6">
+ <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Privacy Policy</a>
+ <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Terms of Service</a>
+ </div>
+ </div>
+ </footer>
+
+ <!-- Three.js Script for 3D Animation -->
+<script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = '90px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emoji, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.6 });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(3.5, 3.5, 1);
+      return sprite;
+    }
+
+    const emojis = ['🚗', '🚌', '🚲', '🏎️', '🚙', '🛵', '🚛'];
+    const shapes = [];
+
+    for (let i = 0; i < 50; i++) {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const mesh = createEmojiSprite(emoji);
+      mesh.position.set((Math.random()-0.5)*70, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+      scene.add(mesh);
+      shapes.push({ mesh, vx: (Math.random()-0.5)*0.04, vy: (Math.random()-0.5)*0.03, s: Math.random()*0.02 });
+    }
+    camera.position.z = 35;
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((item, index) => {
+        item.mesh.position.x += item.vx;
+        item.mesh.position.y += item.vy;
+        item.mesh.position.y += Math.sin(time + index) * 0.02; // floating effect
+        
+        if (item.mesh.position.x > 35) item.mesh.position.x = -35;
+        if (item.mesh.position.x < -35) item.mesh.position.x = 35;
+        if (item.mesh.position.y > 22) item.mesh.position.y = -22;
+        if (item.mesh.position.y < -22) item.mesh.position.y = 22;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>

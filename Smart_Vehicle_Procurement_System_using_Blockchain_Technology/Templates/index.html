@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Vehicle Procurement System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      background: linear-gradient(-45deg, #0a0a1a, #0f172a, #0d1b2a, #0a0a1a);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      min-height: 100vh;
+    }
+
+    #three-canvas {
+      position: fixed; top: 0; left: 0;
+      z-index: 0; width: 100%; height: 100vh; opacity: 0.65;
+    }
+
+    .glass-nav {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .glass-btn {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.3s ease;
+    }
+    .glass-btn:hover {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    .hero-btn-primary {
+      background: rgba(99, 102, 241, 0.25);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    .hero-btn-primary:hover {
+      background: rgba(99, 102, 241, 0.45);
+      border-color: rgba(99, 102, 241, 0.8);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3);
+    }
+
+    .hero-btn-secondary {
+      background: rgba(16, 185, 129, 0.2);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    .hero-btn-secondary:hover {
+      background: rgba(16, 185, 129, 0.4);
+      border-color: rgba(16, 185, 129, 0.8);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .title-anim { animation: fadeSlideDown 1s ease-out; }
+    .sub-anim { animation: fadeSlideUp 1.2s ease-out; }
+    .btn-anim { animation: fadeSlideUp 1.5s ease-out; }
+
+    .floating-badge {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="text-white relative">
+  <!-- Three.js Canvas -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav class="glass-nav fixed top-0 left-0 right-0 z-50 py-4 px-6 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl">🚗</span>
+      <span class="text-xl font-bold text-white">SmartVehicle</span>
+      <span class="floating-badge text-xs px-2 py-1 rounded-full text-indigo-300 ml-2">Blockchain Powered</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <a href="/" class="glass-btn text-white py-2 px-5 rounded-full text-base font-medium font-medium">Home</a>
+      <a href="userLoginForm" class="glass-btn text-indigo-300 py-2 px-5 rounded-full text-base font-medium font-medium">Login</a>
+      <a href="userRegisterForm" class="glass-btn text-green-300 py-2 px-5 rounded-full text-base font-medium font-medium">Register</a>
+      <a href="adminLoginForm" class="glass-btn text-gray-300 py-2 px-4 rounded-full text-base font-medium font-medium">Admin</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section - Full screen -->
+  <div class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 pt-20">
+
+    <!-- Floating tags -->
+    <div class="flex space-x-3 mb-8 btn-anim">
+      <span class="floating-badge text-xs px-3 py-1 rounded-full text-cyan-300">🔗 Blockchain</span>
+      <span class="floating-badge text-xs px-3 py-1 rounded-full text-purple-300">🔍 RTO Verified</span>
+      <span class="floating-badge text-xs px-3 py-1 rounded-full text-green-300">📍 GPS Enabled</span>
+    </div>
+
+    <!-- Main Title -->
+    <h1 class="title-anim text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-6">
+      Smart Vehicle<br>
+      <span class="text-transparent bg-clip-text" style="background-image: linear-gradient(135deg, #6366f1, #06b6d4, #10b981);">Procurement</span>
+    </h1>
+
+    <p class="sub-anim text-lg md:text-xl text-gray-300 max-w-2xl mb-10 leading-relaxed">
+      Buy and sell vehicles securely with blockchain-powered transparency.<br>
+      Every transaction verified, every record immutable.
+    </p>
+
+    <!-- CTA Buttons - Transparent Glass Style -->
+    <div class="btn-anim flex flex-col sm:flex-row gap-4 items-center justify-center">
+      <a href="userRegisterForm"
+        class="hero-btn-secondary py-4 px-10 rounded-full text-lg font-semibold">
+        🚀 Get Started
+      </a>
+      <a href="userLoginForm"
+        class="hero-btn-primary py-4 px-10 rounded-full text-lg font-semibold">
+        🔑 Login
+      </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="btn-anim mt-16 flex space-x-8 md:space-x-16">
+      <div class="text-center">
+        <p class="text-3xl font-bold text-indigo-400">551+</p>
+        <p class="text-xs text-gray-400 mt-1">RTO Records</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-green-400">100%</p>
+        <p class="text-xs text-gray-400 mt-1">Blockchain Secured</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-cyan-400">Live</p>
+        <p class="text-xs text-gray-400 mt-1">GPS Tracking</p>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-500 text-sm animate-bounce">
+      ↓ Scroll to explore
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 py-6 text-center border-t border-gray-800">
+    <p class="text-gray-500 text-sm">© 2025 Smart Vehicle Procurement System · Blockchain Powered</p>
+  </footer>
+
+  <script>
+    // Enhanced Three.js — Emojis floating in 3D
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = '90px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emoji, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.6 });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(3.5, 3.5, 1);
+      return sprite;
+    }
+
+    const emojis = ['🚗', '🚌', '🚲', '🏎️', '🚙', '🛵', '🚛'];
+    const shapes = [];
+
+    for (let i = 0; i < 50; i++) {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const mesh = createEmojiSprite(emoji);
+      mesh.position.set((Math.random()-0.5)*70, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+      scene.add(mesh);
+      shapes.push({ mesh, vx: (Math.random()-0.5)*0.04, vy: (Math.random()-0.5)*0.03, index: i });
+    }
+    camera.position.z = 35;
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((item) => {
+        item.mesh.position.x += item.vx;
+        item.mesh.position.y += item.vy;
+        item.mesh.position.y += Math.sin(time + item.index) * 0.02; // floating effect
+        
+        if (item.mesh.position.x > 35) item.mesh.position.x = -35;
+        if (item.mesh.position.x < -35) item.mesh.position.x = 35;
+        if (item.mesh.position.y > 22) item.mesh.position.y = -22;
+        if (item.mesh.position.y < -22) item.mesh.position.y = 22;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

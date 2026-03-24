@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Smart Vehicle Procurement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    body {
+      background: linear-gradient(-45deg, #0a0a1a, #0f172a, #0d1b2a, #0a0a1a);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      min-height: 100vh;
+    }
+
+    #three-canvas { position: fixed; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; opacity: 0.5; }
+
+    .glass-nav {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .glass-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: all 0.3s;
+    }
+    .glass-btn:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+    /* Main action cards */
+    .action-card {
+      position: relative;
+      backdrop-filter: blur(20px);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      transition: all 0.4s ease;
+      animation: fadeSlideIn 0.7s ease-out;
+    }
+    .action-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+
+    .card-browse {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .card-browse:hover { border-color: rgba(6, 182, 212, 0.6); }
+
+    .card-sell {
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .card-sell:hover { border-color: rgba(139, 92, 246, 0.6); }
+
+    .card-history {
+      background: rgba(16, 185, 129, 0.07);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .card-history:hover { border-color: rgba(16, 185, 129, 0.5); }
+
+    .card-posts {
+      background: rgba(245, 158, 11, 0.07);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+    .card-posts:hover { border-color: rgba(245, 158, 11, 0.5); }
+
+    /* Colorful transparent card buttons */
+    .btn-cyan {
+      background: rgba(6, 182, 212, 0.18);
+      border: 1px solid rgba(6, 182, 212, 0.5);
+      color: #67e8f9;
+      transition: all 0.3s;
+    }
+    .btn-cyan:hover { background: rgba(6, 182, 212, 0.35); transform: translateY(-2px); }
+
+    .btn-purple {
+      background: rgba(139, 92, 246, 0.18);
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      color: #c4b5fd;
+      transition: all 0.3s;
+    }
+    .btn-purple:hover { background: rgba(139, 92, 246, 0.35); transform: translateY(-2px); }
+
+    .btn-green {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      transition: all 0.3s;
+    }
+    .btn-green:hover { background: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
+
+    .btn-amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fde68a;
+      transition: all 0.3s;
+    }
+    .btn-amber:hover { background: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
+
+    .card-icon { animation: float 4s ease-in-out infinite; }
+    .card-icon-2 { animation: float 4s ease-in-out infinite; animation-delay: 1s; }
+    .card-icon-3 { animation: float 4s ease-in-out infinite; animation-delay: 2s; }
+    .card-icon-4 { animation: float 4s ease-in-out infinite; animation-delay: 3s; }
+  </style>
+</head>
+<body class="text-white">
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav class="glass-nav fixed top-0 left-0 right-0 z-50 py-4 px-6 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <span class="text-xl">🚗</span>
+      <span class="text-lg font-bold">SmartVehicle</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="userHome" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🏠 Home</a>
+      <a href="browseVehicles" class="glass-btn text-cyan-300 py-2 px-4 rounded-full text-base font-medium">🚗 Browse</a>
+      <a href="addVehicle" class="glass-btn text-purple-300 py-2 px-4 rounded-full text-base font-medium">➕ Add Vehicle</a>
+      <a href="purchaseHistory" class="glass-btn text-green-300 py-2 px-4 rounded-full text-base font-medium">📦 My Purchases</a>
+      <a href="vehicleHistory" class="glass-btn text-yellow-300 py-2 px-4 rounded-full text-base font-medium">📋 My Posts</a>
+      <a href="log" class="glass-btn text-red-300 py-2 px-4 rounded-full text-base font-medium">🚪 Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16">
+
+    <!-- Primary Action Cards — 2 big ones -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mb-6">
+
+      <!-- Browse Vehicles -->
+      <a href="browseVehicles" class="action-card card-browse block">
+        <div class="card-icon text-6xl mb-5">🔍</div>
+        <p class="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-2">Browse</p>
+        <h2 class="text-2xl font-black text-white mb-3">Browse Vehicles</h2>
+        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+          Explore 500+ RTO-verified vehicles. Filter by location, price, and fuel type. Buy with blockchain security.
+        </p>
+        <span class="btn-cyan px-6 py-3 rounded-full text-base font-medium font-semibold inline-block">
+          Browse Now →
+        </span>
+      </a>
+
+      <!-- Add / Sell Vehicle -->
+      <a href="addVehicle" class="action-card card-sell block">
+        <div class="card-icon-2 text-6xl mb-5">🚗</div>
+        <p class="text-purple-400 text-xs font-bold tracking-widest uppercase mb-2">Sell</p>
+        <h2 class="text-2xl font-black text-white mb-3">Add Vehicle</h2>
+        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+          List your vehicle on the blockchain. RTO-verified entries. Auto-fill from registration data.
+        </p>
+        <span class="btn-purple px-6 py-3 rounded-full text-base font-medium font-semibold inline-block">
+          Add Vehicle →
+        </span>
+      </a>
+
+    </div>
+
+    <!-- Secondary Cards — 2 smaller ones -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+
+      <!-- Purchase History -->
+      <a href="purchaseHistory" class="action-card card-history block">
+        <div class="card-icon-3 text-4xl mb-4">📦</div>
+        <p class="text-green-400 text-xs font-bold tracking-widest uppercase mb-1">History</p>
+        <h3 class="text-xl font-bold text-white mb-2">My Purchases</h3>
+        <p class="text-gray-400 text-sm mb-4">Review past purchases and track ownership transfers.</p>
+        <span class="btn-green px-5 py-2 rounded-full text-xs font-semibold inline-block">
+          View History →
+        </span>
+      </a>
+
+      <!-- My Posted Vehicles -->
+      <a href="vehicleHistory" class="action-card card-posts block">
+        <div class="card-icon-4 text-4xl mb-4">📋</div>
+        <p class="text-amber-400 text-xs font-bold tracking-widest uppercase mb-1">My Listings</p>
+        <h3 class="text-xl font-bold text-white mb-2">My Posted Vehicles</h3>
+        <p class="text-gray-400 text-sm mb-4">Manage your listed vehicles and monitor their sale status.</p>
+        <span class="btn-amber px-5 py-2 rounded-full text-xs font-semibold inline-block">
+          View Posts →
+        </span>
+      </a>
+
+    </div>
+  </div>
+
+  <footer class="relative z-10 py-6 text-center border-t border-gray-800">
+    <p class="text-gray-500 text-sm">© 2025 Smart Vehicle Procurement System · Blockchain Powered</p>
+  </footer>
+
+  <script>
+    // Enhanced Three.js — Emojis floating in 3D
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    function createEmojiSprite(emoji) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.font = '90px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emoji, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.6 });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(3.5, 3.5, 1);
+      return sprite;
+    }
+
+    const emojis = ['🚗', '🚌', '🚲', '🏎️', '🚙', '🛵', '🚛'];
+    const shapes = [];
+
+    for (let i = 0; i < 50; i++) {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const mesh = createEmojiSprite(emoji);
+      mesh.position.set((Math.random()-0.5)*70, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+      scene.add(mesh);
+      shapes.push({ mesh, vx: (Math.random()-0.5)*0.04, vy: (Math.random()-0.5)*0.03, index: i });
+    }
+    camera.position.z = 35;
+
+    let time = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      shapes.forEach((item) => {
+        item.mesh.position.x += item.vx;
+        item.mesh.position.y += item.vy;
+        item.mesh.position.y += Math.sin(time + item.index) * 0.02; // floating effect
+        
+        if (item.mesh.position.x > 35) item.mesh.position.x = -35;
+        if (item.mesh.position.x < -35) item.mesh.position.x = 35;
+        if (item.mesh.position.y > 22) item.mesh.position.y = -22;
+        if (item.mesh.position.y < -22) item.mesh.position.y = 22;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
