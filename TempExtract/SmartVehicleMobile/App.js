@@ -1,0 +1,107 @@
+import React, { useState } from 'react';
+import { StyleSheet, View, ActivityIndicator, SafeAreaView, Platform, Text } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+
+// Conditionally import WebView to avoid errors on Web platform
+let WebView;
+if (Platform.OS !== 'web') {
+  WebView = require('react-native-webview').WebView;
+}
+
+export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Use Local IP for direct connection without tunnel passwords
+  const DJANGO_URL = Platform.OS === 'web'
+    ? 'http://localhost:8000'
+    : 'http://10.51.98.75:8000'; // Make sure Django runs with: python manage.py runserver 0.0.0.0:8000
+
+  const renderContent = () => {
+    if (Platform.OS === 'web') {
+      // For Browser/Desktop version, we use a standard iframe
+      return (
+        <iframe
+          src={DJANGO_URL}
+          style={{ flex: 1, border: 'none', width: '100%', height: '100%' }}
+          onLoad={() => setIsLoading(false)}
+        />
+      );
+    } else {
+      // For Android/iOS, we use WebView
+      return (
+        <WebView
+          source={{ uri: DJANGO_URL }}
+          style={styles.webview}
+          onLoadStart={() => setIsLoading(true)}
+          onLoadEnd={() => setIsLoading(false)}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          scalesPageToFit={true}
+          startInLoadingState={true}
+        />
+      );
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+
+      <View style={{ flex: 1 }}>
+        {renderContent()}
+
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={styles.loadingText}>Loading Your Project...</Text>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          {Platform.OS === 'web' ? 'Desktop Moded (Web)' : 'Mobile Mode'}
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingTop: Platform.OS === 'android' ? 35 : 0,
+  },
+  webview: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+  footer: {
+    height: 30,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+  }
+});
