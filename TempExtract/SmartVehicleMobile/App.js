@@ -11,10 +11,8 @@ if (Platform.OS !== 'web') {
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use Local IP for direct connection without tunnel passwords
-  const DJANGO_URL = Platform.OS === 'web'
-    ? 'http://localhost:8000'
-    : 'http://10.51.98.75:8000'; // Make sure Django runs with: python manage.py runserver 0.0.0.0:8000
+  // Directly connect to the live Render Backend!
+  const DJANGO_URL = 'https://smartvehicleprocurementsystem.onrender.com/';
 
   const renderContent = () => {
     if (Platform.OS === 'web') {
@@ -27,7 +25,7 @@ export default function App() {
         />
       );
     } else {
-      // For Android/iOS, we use WebView
+      // For Android/iOS, we use a clean WebView framing the website
       return (
         <WebView
           source={{ uri: DJANGO_URL }}
@@ -37,7 +35,9 @@ export default function App() {
           javaScriptEnabled={true}
           domStorageEnabled={true}
           scalesPageToFit={true}
-          startInLoadingState={true}
+          startInLoadingState={false}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
         />
       );
     }
@@ -52,16 +52,10 @@ export default function App() {
 
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-            <Text style={styles.loadingText}>Loading Your Project...</Text>
+            <ActivityIndicator size="large" color="#10b981" />
+            <Text style={styles.loadingText}>Starting Smart Vehicle...</Text>
           </View>
         )}
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          {Platform.OS === 'web' ? 'Desktop Moded (Web)' : 'Mobile Mode'}
-        </Text>
       </View>
     </SafeAreaView>
   );
