@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
-const LOCAL_IP = '10.92.44.75';
-const RENDER_URL = 'https://smart-vehicle-procurement-app.onrender.com';
-const USE_PRODUCTION = false; // Set to false to use local backend during development
+const RENDER_URL = 'https://smart-vehicle-backend.onrender.com';
+const USE_PRODUCTION = true; // Idi true chesthe live ki connect avthundi!
+
 
 // Web deployment auto-detection
 const isDeployedWeb = Platform.OS === 'web' && typeof window !== 'undefined' && window.location.hostname !== 'localhost';
