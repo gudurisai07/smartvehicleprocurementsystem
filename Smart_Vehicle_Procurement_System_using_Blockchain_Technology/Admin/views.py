@@ -12,9 +12,6 @@ from seller.models import Vehicle
 
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)
 def adminHome(request):
-    if not request.session.get('admin'):
-        return render(request,'adminLoginForm.html')  
-    
     total_users = userRegisteredTable.objects.count()
     total_vehicles = Vehicle.objects.count()
     total_transactions = Transaction.objects.count()
@@ -26,16 +23,12 @@ def adminHome(request):
     })
 
 def adminTransactions(request):
-    if not request.session.get('admin'):
-        return render(request, 'adminLoginForm.html')
     transactions = Transaction.objects.all().order_by('-created_at')
     return render(request, 'admin/adminTransactions.html', {'transactions': transactions})
 
 from django.shortcuts import redirect
 
 def adminApproveTransaction(request):
-    if not request.session.get('admin'):
-        return redirect('adminLoginForm')
 
     hash_code = request.GET.get('hash_code', '').strip()
     if not hash_code:
@@ -98,8 +91,6 @@ def adminLoginCheck(request):
     
 
 def userList(request):
-    if not request.session.get('admin'):
-        return render(request,'adminLoginForm.html') 
     users=userRegisteredTable.objects.all()
     return render(request,'admin/userList.html',{'users':users})
 
@@ -113,8 +104,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
 def activate_user(request):
-    if not request.session.get('admin'):
-        return render(request,'adminLoginForm.html') 
 
     id=request.GET['id']
     user = get_object_or_404(userRegisteredTable, id=id)
@@ -124,8 +113,6 @@ def activate_user(request):
     return render(request,'admin/userList.html',{'users':users})  
 
 def deactivate_user(request):
-    if not request.session.get('admin'):
-        return render(request,'adminLoginForm.html') 
     
     id=request.GET['id']
     user = get_object_or_404(userRegisteredTable, id=id)

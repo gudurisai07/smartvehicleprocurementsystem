@@ -29,6 +29,14 @@
       background-size: 400% 400%;
       animation: gradientShift 20s ease infinite;
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Ensure content doesn't hit screen edges on mobile */
+    @media (max-width: 640px) {
+      .container-mobile { padding-left: 20px; padding-right: 20px; }
+      .title-anim { font-size: 2.5rem !important; line-height: 1.2; }
+      .hero-btn-primary, .hero-btn-secondary { width: 100%; max-width: 280px; }
     }
 
     #three-canvas {
@@ -105,12 +113,12 @@
       <span class="text-xl font-bold text-white">SmartVehicle</span>
     </div>
 
-    <!-- Desktop Menu -->
+    <!-- Desktop Menu - HIDDEN ON MOBILE -->
     <div class="hidden md:flex items-center space-x-3">
-      <a href="/" class="glass-btn text-white py-2 px-5 rounded-full text-base font-medium">Home</a>
-      <a href="userLoginForm" class="glass-btn text-indigo-300 py-2 px-5 rounded-full text-base font-medium">Login</a>
-      <a href="userRegisterForm" class="glass-btn text-green-300 py-2 px-5 rounded-full text-base font-medium">Register</a>
-      <a href="adminLoginForm" class="glass-btn text-gray-300 py-2 px-4 rounded-full text-base font-medium">Admin</a>
+      <a href="/" class="glass-btn text-white py-2 px-5 rounded-full text-sm font-medium">Home</a>
+      <a href="userLoginForm" class="glass-btn text-indigo-300 py-2 px-5 rounded-full text-sm font-medium">Login</a>
+      <a href="userRegisterForm" class="glass-btn text-green-300 py-2 px-5 rounded-full text-sm font-medium">Register</a>
+      <a href="adminHome" class="glass-btn text-gray-300 py-2 px-4 rounded-full text-sm font-medium">Admin</a>
     </div>
 
     <!-- Mobile Menu Button (Three Dots) -->
@@ -124,7 +132,7 @@
     <a href="/" class="block px-6 py-4 text-white hover:bg-gray-800 font-medium border-b border-gray-700">🏠 Home</a>
     <a href="userLoginForm" class="block px-6 py-4 text-indigo-300 hover:bg-gray-800 font-medium border-b border-gray-700">🔑 Login</a>
     <a href="userRegisterForm" class="block px-6 py-4 text-green-300 hover:bg-gray-800 font-medium border-b border-gray-700">📝 Register</a>
-    <a href="adminLoginForm" class="block px-6 py-4 text-gray-300 hover:bg-gray-800 font-medium">🛡️ Admin</a>
+    <a href="adminHome" class="block px-6 py-4 text-gray-300 hover:bg-gray-800 font-medium">🛡️ Admin</a>
   </div>
 
   <script>

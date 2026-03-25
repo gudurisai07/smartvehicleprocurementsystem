@@ -50,11 +50,10 @@
       <span class="text-2xl">🛡️</span>
       <span class="text-xl font-bold">Admin Panel</span>
     </div>
-    <div class="flex items-center space-x-3">
-      <a href="adminHome" class="glass-btn text-white py-2 px-5 rounded-full text-base font-semibold md:text-lg">🏠 Dashboard</a>
-      <a href="adminTransactions" class="glass-btn text-yellow-300 py-2 px-4 rounded-full text-base font-medium">⛓️ Verify Transactions</a>
-      <a href="userdetails" class="glass-btn text-blue-300 py-2 px-4 rounded-full text-base font-medium">👥 Users</a>
-      <a href="log" class="glass-btn text-red-300 py-2 px-4 rounded-full text-base font-medium">🚪 Logout</a>
+    <div class="flex items-center space-x-2">
+      <a href="adminHome" class="glass-btn text-white py-2 px-4 rounded-full text-xs font-semibold">🏠 Home</a>
+      <a href="adminTransactions" class="glass-btn text-yellow-300 py-2 px-4 rounded-full text-xs font-medium">⛓️ Verify</a>
+      <a href="log" class="glass-btn text-red-300 py-2 px-4 rounded-full text-xs font-medium">🚪 Logout</a>
     </div>
   </nav>
 
@@ -125,18 +124,6 @@
             {% elif user.status == 'Inactive' %}❌ Inactive
             {% else %}⏳ {{ user.status }}{% endif %}
           </span>
-          {% if user.status == 'Active' %}
-          <a href="deactivate_user?id={{ user.id }}"
-             class="btn-deactivate px-4 py-2 rounded-full text-xs font-semibold"
-             onclick="return confirm('Deactivate {{ user.name }}?');">
-            Deactivate
-          </a>
-          {% else %}
-          <a href="activate_user?id={{ user.id }}"
-             class="btn-activate px-4 py-2 rounded-full text-xs font-semibold">
-            Activate
-          </a>
-          {% endif %}
         </div>
 
       </div>
