@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator, SafeAreaView, Platform, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as Location from 'expo-location';
 
 // Conditionally import WebView to avoid errors on Web platform
 let WebView;
@@ -10,6 +11,16 @@ if (Platform.OS !== 'web') {
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await Location.requestForegroundPermissionsAsync();
+      } catch (err) {
+        console.log("Location permission error:", err);
+      }
+    })();
+  }, []);
 
   // Directly connect to the live Render Backend!
   const DJANGO_URL = 'https://smartvehicleprocurementsystem.onrender.com/';
