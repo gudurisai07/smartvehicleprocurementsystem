@@ -6,19 +6,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "workingDirectory": "TempExtract/SmartVehicleMobile"
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
-      "workingDirectory": "TempExtract/SmartVehicleMobile",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
-      "autoIncrement": true,
-      "workingDirectory": "TempExtract/SmartVehicleMobile"
+      "autoIncrement": true
     }
   },
   "submit": {
