@@ -1,0 +1,14 @@
+# Ignore large Django project folders for Expo builds
+Smart_Vehicle_Procurement_System_using_Blockchain_Technology/
+TempExtract/
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+node_modules/
+.expo/
+dist/
+ip.txt
+requirements_utf8.txt
+python-version
+ README.md
