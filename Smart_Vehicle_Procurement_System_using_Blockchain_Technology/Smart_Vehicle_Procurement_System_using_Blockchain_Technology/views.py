@@ -14,4 +14,5 @@ def userLoginForm(request):
     return render(request,'userLoginForm.html')
 
 def adminLoginForm(request):
-    return render(request,'adminLoginForm.html')
+    from django.shortcuts import redirect
+    return redirect('adminHome')
