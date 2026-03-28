@@ -34,6 +34,7 @@ export default function App() {
           onLoadEnd={() => setIsLoading(false)}
           javaScriptEnabled={true}
           domStorageEnabled={true}
+          geolocationEnabled={true}
           scalesPageToFit={true}
           startInLoadingState={false}
           bounces={false}
