@@ -10,5 +10,19 @@ node_modules/
 dist/
 ip.txt
 requirements_utf8.txt
-python-version
- README.md
+.python-version
+README.md
+.git/
+.gitignore
+ip.txt
+requirements_utf8.txt
+fix_car_emoji.py
+apply_mobile_navbar.py
+implementation_plan_restructure.md
+cortex_step_record.json
+.agents/
+.agent/
+_agents/
+_agent/
+brain/
+*.log
