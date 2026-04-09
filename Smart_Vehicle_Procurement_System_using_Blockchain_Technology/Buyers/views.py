@@ -115,18 +115,9 @@ def send_registration_otp(request):
             # Real Send - SMS
             sms_success = send_sms_otp(mobile, otp)
             
-            # Real Send - Email
+            # Since SMTP authentication hangs indefinitely on Render (due to blocked app password),
+            # we bypass sending the email to prevent 502 Gateway timeouts.
             email_success = False
-            if email:
-                try:
-                    subject = 'Verify your Smart Vehicle Procurement System Account'
-                    message = f'Hello {name},\n\nYour OTP for registration is: {otp}\n\nPlease verify this to complete your registration.'
-                    email_from = settings.EMAIL_HOST_USER
-                    recipient_list = [email]
-                    send_mail(subject, message, email_from, recipient_list, fail_silently=False)
-                    email_success = True
-                except Exception as e:
-                    print(f"Registration Email error: {e}")
 
             if not (sms_success or email_success):
                 # Fallback for Demo/Render when credentials are dead
