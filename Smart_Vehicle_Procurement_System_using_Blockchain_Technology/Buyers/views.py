@@ -236,11 +236,11 @@ def browseVehicles(request):
         'search_query': search_query,
         'vehicle_type_filter': vehicle_type_filter,
         'types': [
-            ('car', 'car.png', 'Cars'),
-            ('bike', 'bike.png', 'Bikes'),
-            ('truck', 'truck.png', 'Trucks'),
-            ('other', 'others.png', 'Others'),
-            ('', 'all.png', 'All Categories')
+            ('car', '🚗', 'Cars'),
+            ('bike', '🏍️', 'Bikes'),
+            ('truck', '🚚', 'Trucks'),
+            ('other', '📦', 'Others'),
+            ('', '🌐', 'All Categories')
         ]
     })
 
