@@ -23,7 +23,7 @@ const RegisterScreen = ({ navigation }) => {
         try {
             // In a real app, this would call specialized registration endpoints
             // For now, we'll simulate success since we need to handle multi-role logic on backend
-            Alert.alert('Success', 'Registration submitted! Please wait for Admin approval.', [
+            Alert.alert('Success', 'Registration Successfully completed!', [
                 { text: 'OK', onPress: () => navigation.navigate('Login') }
             ]);
         } catch (error) {
