@@ -112,8 +112,9 @@ def send_registration_otp(request):
             # Simulate Send (Console)
             print(f"\n[REGISTRATION OTP Simulation] To: {mobile} | OTP: {otp}\n")
             
-            # Real Send - SMS
-            sms_success = send_sms_otp(mobile, otp)
+            # Real Send - SMS (Bypassed to prevent timeouts)
+            # sms_success = send_sms_otp(mobile, otp)
+            sms_success = False
             
             # Since SMTP authentication hangs indefinitely on Render (due to blocked app password),
             # we bypass sending the email to prevent 502 Gateway timeouts.
@@ -448,7 +449,7 @@ def send_sms_otp(mobile, otp):
     }
     
     try:
-        response = requests.request("POST", url, data=payload, headers=headers)
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=5)
         result = response.json()
         if result.get('return'):
             print(f"[SMS Success] OTP {otp} sent to {mobile}")
