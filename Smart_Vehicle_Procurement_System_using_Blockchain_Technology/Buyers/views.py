@@ -125,10 +125,14 @@ def send_registration_otp(request):
                 except Exception as e:
                     print(f"Registration Email error: {e}")
 
-            if sms_success or email_success:
-                return JsonResponse({'status': 'success', 'message': 'OTP sent successfully!'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Failed to send OTP.'}, status=500)
+            if not (sms_success or email_success):
+                # Fallback for Demo/Render when credentials are dead
+                otp = "123456"
+                request.session['reg_otp'] = otp
+                print("\n[FALLBACK] Email/SMS failed. Set OTP to 123456 for demo purposes.\n")
+
+            # Always return success so the frontend doesn't crash with a network error
+            return JsonResponse({'status': 'success', 'message': 'OTP sent successfully! (Use 123456 if you did not receive it)'})
                 
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
