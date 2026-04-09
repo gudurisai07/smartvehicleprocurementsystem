@@ -81,6 +81,9 @@ def userRegisterCheck(request):
 # Existing views... (LoginCheck, browseVehicles, etc)
 # ...
 
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def send_registration_otp(request):
     """
     AJAX view to send OTP during registration.
@@ -593,6 +596,7 @@ def reset_password_final(request):
 
     return render(request, 'reset_password.html')
 
+@csrf_exempt
 def verify_registration_otp_ajax(request):
     if request.method == 'POST':
         try:
