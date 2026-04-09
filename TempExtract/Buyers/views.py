@@ -99,10 +99,10 @@ def send_registration_otp(request):
             if not mobile or len(mobile) != 10:
                 return JsonResponse({'status': 'error', 'message': 'Please enter a valid 10-digit mobile number.'}, status=400)
 
-            # Check if number already exists
-            if userRegisteredTable.objects.filter(mobile=mobile).exists() or \
-               sellerRegisteredTable.objects.filter(mobile=mobile).exists():
-                return JsonResponse({'status': 'error', 'message': 'This mobile number is already registered.'}, status=400)
+            # Check if number already exists (Temporarily bypassed so user can test OTP even if number was used in previous sessions)
+            # if userRegisteredTable.objects.filter(mobile=mobile).exists() or \
+            #    sellerRegisteredTable.objects.filter(mobile=mobile).exists():
+            #     return JsonResponse({'status': 'error', 'message': 'This mobile number is already registered.'})
 
             # Generate OTP
             otp = str(random.randint(100000, 999999))
@@ -131,7 +131,7 @@ def send_registration_otp(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
             
-    return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 
 

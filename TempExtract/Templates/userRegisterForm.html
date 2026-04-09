@@ -65,6 +65,7 @@
                 Send OTP
               </button>
             </div>
+            <p id="otpErrorMsg" class="text-xs mt-1 hidden"></p>
           </div>
           <div id="otpSection" class="hidden">
             <label class="block text-orange-400 text-lg font-medium mb-2">Verification OTP</label>
@@ -114,8 +115,13 @@
       const btn = document.getElementById('sendOtpBtn');
       const otpSection = document.getElementById('otpSection');
       
+      const errorDiv = document.getElementById('otpErrorMsg');
+      
+      errorDiv.classList.add('hidden');
       if (!mobile || mobile.length !== 10) {
-        alert("Please enter a valid 10-digit mobile number.");
+        errorDiv.textContent = "Please enter a valid 10-digit mobile number.";
+        errorDiv.className = "text-xs mt-1 text-red-400";
+        errorDiv.classList.remove('hidden');
         return;
       }
 
@@ -133,15 +139,21 @@
         });
 
         const data = await response.json();
-        if (response.ok) {
-          alert(data.message);
+        if (data.status === 'success') {
+          errorDiv.textContent = data.message;
+          errorDiv.className = "text-xs mt-1 text-green-400";
+          errorDiv.classList.remove('hidden');
           otpSection.classList.remove('hidden');
           btn.textContent = "Resend OTP";
         } else {
-          alert("Error: " + data.message);
+          errorDiv.textContent = "Error: " + data.message;
+          errorDiv.className = "text-xs mt-1 text-red-400";
+          errorDiv.classList.remove('hidden');
         }
       } catch (error) {
-        alert("Network error. Please try again.");
+        errorDiv.textContent = "Network error. Please try again.";
+        errorDiv.className = "text-xs mt-1 text-red-400";
+        errorDiv.classList.remove('hidden');
       } finally {
         btn.disabled = false;
         if (btn.textContent === "Sending...") btn.textContent = "Send OTP";
