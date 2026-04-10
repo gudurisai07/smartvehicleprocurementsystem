@@ -55,26 +55,10 @@
             <input type="text" name="loginid" maxlength="30" placeholder="Choose a Login ID"
               class="glass-input w-full px-4 py-3 rounded-xl" required value="{{ form_data.loginid }}">
           </div>
-          <div class="relative">
+          <div class="md:col-span-1">
             <label class="block text-green-400 text-lg font-medium mb-2">Mobile Number</label>
-            <div class="flex space-x-2">
-              <input type="text" id="reg_mobile" name="mobile" maxlength="10" placeholder="10-digit Mobile Number"
-                class="glass-input w-full px-4 py-3 rounded-xl" required value="{{ form_data.mobile }}">
-              <button type="button" id="sendOtpBtn" onclick="sendRegistrationOtp()"
-                class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl flex-shrink-0 transition disabled:opacity-50">
-                Send OTP
-              </button>
-            </div>
-            <p id="otpErrorMsg" class="text-xs mt-1 hidden"></p>
-          </div>
-          <div id="otpSection" class="hidden">
-            <label class="block text-orange-400 text-lg font-medium mb-2">Verification OTP</label>
-            <div class="relative">
-              <input type="text" name="otp" id="reg_otp" maxlength="6" placeholder="Enter 6-digit OTP"
-                class="glass-input w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500">
-              <span id="otpStatus" class="absolute right-3 top-3 text-xl"></span>
-            </div>
-            <p id="otpMessage" class="text-xs text-gray-400 mt-1">Check your mobile/email for the code.</p>
+            <input type="text" id="reg_mobile" name="mobile" maxlength="10" placeholder="10-digit Mobile Number"
+              class="glass-input w-full px-4 py-3 rounded-xl" required value="{{ form_data.mobile }}">
           </div>
           <div class="md:col-span-2">
             <label class="block text-yellow-400 text-lg font-medium mb-2">Password</label>
@@ -95,7 +79,7 @@
           </div>
           <p id="location-status" class="text-xs text-yellow-400 mt-1 hidden"></p>
         </div>
-        <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-white font-bold rounded-xl text-lg hover:shadow-lg transition-transform opacity-50 cursor-not-allowed" disabled>
+        <button type="submit" id="submitBtn" class="btn-primary w-full py-4 text-white font-bold rounded-xl text-lg hover:shadow-lg transition-transform">
           Create Account →
         </button>
       </form>
@@ -108,99 +92,8 @@
   </div>
 
   <script>
-    async function sendRegistrationOtp() {
-      const mobile = document.getElementById('reg_mobile').value;
-      const email = document.getElementById('email').value;
-      const name = document.getElementsByName('name')[0].value;
-      const btn = document.getElementById('sendOtpBtn');
-      const otpSection = document.getElementById('otpSection');
-      
-      const errorDiv = document.getElementById('otpErrorMsg');
-      
-      errorDiv.classList.add('hidden');
-      if (!mobile || mobile.length !== 10) {
-        errorDiv.textContent = "Please enter a valid 10-digit mobile number.";
-        errorDiv.className = "text-xs mt-1 text-red-400";
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = "Sending...";
-
-      try {
-        const response = await fetch('/send-registration-otp/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
-          },
-          body: JSON.stringify({ mobile, email, name })
-        });
-
-        const data = await response.json();
-        if (data.status === 'success') {
-          errorDiv.textContent = data.message;
-          errorDiv.className = "text-xs mt-1 text-green-400";
-          errorDiv.classList.remove('hidden');
-          otpSection.classList.remove('hidden');
-          btn.textContent = "Resend OTP";
-        } else {
-          errorDiv.textContent = "Error: " + data.message;
-          errorDiv.className = "text-xs mt-1 text-red-400";
-          errorDiv.classList.remove('hidden');
-        }
-      } catch (error) {
-        errorDiv.textContent = "Network error. Please try again.";
-        errorDiv.className = "text-xs mt-1 text-red-400";
-        errorDiv.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        if (btn.textContent === "Sending...") btn.textContent = "Send OTP";
-      }
-    }
-
-    // Real-time OTP Verification
-    document.getElementById('reg_otp').addEventListener('input', async function(e) {
-      const otp = e.target.value;
-      const statusSpan = document.getElementById('otpStatus');
-      const msgP = document.getElementById('otpMessage');
-      const submitBtn = document.getElementById('submitBtn');
-
-      if (otp.length === 6) {
-        statusSpan.textContent = "⏳";
-        try {
-          const response = await fetch('/verify-registration-otp-ajax/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
-            },
-            body: JSON.stringify({ otp: otp })
-          });
-          const data = await response.json();
-          if (response.ok) {
-            statusSpan.textContent = "✅";
-            msgP.textContent = "OTP Verified Successfully!";
-            msgP.className = "text-xs text-green-400 mt-1";
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            e.target.readOnly = true; // Lock the field on success
-          } else {
-            statusSpan.textContent = "❌";
-            msgP.textContent = "Invalid OTP. Please try again.";
-            msgP.className = "text-xs text-red-400 mt-1";
-          }
-        } catch (error) {
-          statusSpan.textContent = "⚠️";
-        }
-      } else {
-        statusSpan.textContent = "";
-        msgP.textContent = "Check your mobile/email for the 6-digit code.";
-        msgP.className = "text-xs text-gray-400 mt-1";
-      }
-    });
-
+    // Real-time OTP Verification - Removed
+    
     async function getLiveLocation() {
       const locStatus = document.getElementById('location-status');
       const locInput = document.getElementById('location');

@@ -101,7 +101,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': Path('C:/Users/asus0/OneDrive/Desktop/Documents/new_app2-main/db.sqlite3'),
+            'NAME': str(BASE_DIR / 'db.sqlite3'),
         }
     }
 

@@ -114,13 +114,13 @@
 
           <!-- Metadata Grid -->
           <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="flex items-center space-x-3">
-              <div class="detail-icon">📍</div>
+            <a href="{{ vehicle.map_link }}" target="_blank" class="flex items-center space-x-3 group/loc hover:bg-white/5 p-2 rounded-xl transition-all">
+              <div class="detail-icon group-hover/loc:scale-110 transition-transform">📍</div>
               <div class="overflow-hidden">
-                <p class="text-[10px] uppercase font-bold text-white/40 tracking-widest">Location</p>
-                <p class="text-sm font-bold truncate text-indigo-200">{{ vehicle.seller_location|default:"Unknown" }}</p>
+                <p class="text-[11px] uppercase font-bold text-white/40 tracking-widest">Location</p>
+                <p class="text-sm font-bold truncate text-indigo-200 group-hover/loc:text-indigo-400 transition-colors">{{ vehicle.seller_location|default:"Unknown" }}</p>
               </div>
-            </div>
+            </a>
             <div class="flex items-center space-x-3">
               <div class="detail-icon">🛡️</div>
               <div>

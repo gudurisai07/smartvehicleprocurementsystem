@@ -23,17 +23,6 @@ def sellerRegisterCheck(request):
         mobile=request.POST['mobile']
         password=request.POST['password']
         location=request.POST.get('location', '')
-        user_otp = request.POST.get('otp', '').strip()
-
-        # OTP Verification check (sessions are shared across apps in the same project)
-        session_otp = request.session.get('reg_otp')
-        session_mobile = request.session.get('reg_mobile')
-
-        if not session_otp or user_otp != session_otp or mobile != session_mobile:
-            messages.error(request, "OTP verification failed. Please send a new OTP and verify.")
-            return render(request, "sellerRegisterForm.html", {
-                "form_data": request.POST
-            })
 
         user = sellerRegisteredTable(
             name=name,
